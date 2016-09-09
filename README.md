@@ -5,10 +5,6 @@
 [![License](https://img.shields.io/cocoapods/l/Findr.svg?style=flat)](http://cocoapods.org/pods/Findr)
 [![Platform](https://img.shields.io/cocoapods/p/Findr.svg?style=flat)](http://cocoapods.org/pods/Findr)
 
-## Example
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
 ## Requirements
 
 ## Installation
