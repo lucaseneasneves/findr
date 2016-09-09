@@ -11,7 +11,7 @@ import UIKit
 /// View for annotation. Subclass to customize. Annotation views should be lightweight,
 /// try to avoid xibs and autolayout.
 /// bindUi method is called when distance/azimuth is set in ARViewController.
-public class ARAnnotationView: UIView
+public class FindrAnnotationView: UIView
 {
     public weak var annotation: FindrAnnotation?{
         didSet{

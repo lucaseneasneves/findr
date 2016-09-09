@@ -26,7 +26,7 @@ import CoreLocation
  *      https://github.com/DanijelHuis/HDAugmentedReality.git
  *
  */
-public class FindrViewController: UIViewController, ARTrackingManagerDelegate
+public class FindrViewController: UIViewController, FindrTrackingManagerDelegate
 {
     /// Data source
     public var dataSource: ARDataSource?
