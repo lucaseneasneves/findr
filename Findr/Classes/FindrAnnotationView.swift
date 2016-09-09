@@ -13,7 +13,7 @@ import UIKit
 /// bindUi method is called when distance/azimuth is set in ARViewController.
 public class ARAnnotationView: UIView
 {
-    public weak var annotation: ARAnnotation?{
+    public weak var annotation: FindrAnnotation?{
         didSet{
             bindUi()
         }

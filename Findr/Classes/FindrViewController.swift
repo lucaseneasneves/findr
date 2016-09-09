@@ -26,7 +26,7 @@ import CoreLocation
  *      https://github.com/DanijelHuis/HDAugmentedReality.git
  *
  */
-public class ARViewController: UIViewController, ARTrackingManagerDelegate
+public class FindrViewController: UIViewController, ARTrackingManagerDelegate
 {
     /// Data source
     public var dataSource: ARDataSource?
@@ -96,7 +96,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     private var overlayView: OverlayView = OverlayView()
     private var displayTimer: CADisplayLink?
     private var cameraLayer: AVCaptureVideoPreviewLayer?    // Will be set in init
-    private var annotationViews: [ARAnnotationView] = []
+    private var annotationViews: [FindrAnnotationView] = []
     private var previosRegion: Int = 0
     private var degreesPerScreen: CGFloat = 0
     private var shouldReloadAnnotations: Bool = false
@@ -104,8 +104,8 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     private var reloadInProgress = false
     private var reloadToken: Int = 0
     private var reloadLock = NSRecursiveLock()
-    private var annotations: [ARAnnotation] = []
-    private var activeAnnotations: [ARAnnotation] = []
+    private var annotations: [FindrAnnotation] = []
+    private var activeAnnotations: [FindrAnnotation] = []
     private var closeButton: UIButton?
     private var currentHeading: Double = 0
     private var currentXVariations: [Double] = []
@@ -152,8 +152,8 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         self.maxVisibleAnnotations = 100
         self.maxDistance = 0
         
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ARViewController.locationNotification(_:)), name: "kNotificationLocationSet", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ARViewController.appWillEnterForeground(_:)), name: UIApplicationWillEnterForegroundNotification, object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(FindrViewController.locationNotification(_:)), name: "kNotificationLocationSet", object: nil)
+        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(FindrViewController.appWillEnterForeground(_:)), name: UIApplicationWillEnterForegroundNotification, object: nil)
 
         self.initialize()
     }
@@ -230,7 +230,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
             
             let debugMapButton: UIButton = UIButton(type: UIButtonType.Custom)
             debugMapButton.frame = CGRect(x: 5,y: 5,width: 40,height: 40);
-            debugMapButton.addTarget(self, action: #selector(ARViewController.debugButtonTap), forControlEvents: UIControlEvents.TouchUpInside)
+            debugMapButton.addTarget(self, action: #selector(FindrViewController.debugButtonTap), forControlEvents: UIControlEvents.TouchUpInside)
             debugMapButton.setTitle("map", forState: UIControlState.Normal)
             debugMapButton.backgroundColor = UIColor.whiteColor().colorWithAlphaComponent(0.5)
             debugMapButton.setTitleColor(UIColor.blackColor(), forState: UIControlState.Normal)
@@ -240,7 +240,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         
         if closeButtonImage == nil
         {
-            let bundle = NSBundle(forClass: ARViewController.self)
+            let bundle = NSBundle(forClass: FindrAnnotationView.self)
             let path = bundle.pathForResource("hdar_close", ofType: "png")
             if let path = path
             {
@@ -252,7 +252,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         let closeButton: UIButton = UIButton(type: UIButtonType.Custom)
         closeButton.setImage(closeButtonImage, forState: UIControlState.Normal);
         closeButton.frame = CGRect(x: self.view.bounds.size.width - 45, y: 5,width: 40,height: 40)
-        closeButton.addTarget(self, action: #selector(ARViewController.closeButtonTap), forControlEvents: UIControlEvents.TouchUpInside)
+        closeButton.addTarget(self, action: #selector(FindrViewController.closeButtonTap), forControlEvents: UIControlEvents.TouchUpInside)
         closeButton.autoresizingMask = [UIViewAutoresizing.FlexibleLeftMargin, UIViewAutoresizing.FlexibleBottomMargin]
         self.view.addSubview(closeButton)
         self.closeButton = closeButton
@@ -317,9 +317,9 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     *
     *       - parameter annotations: Annotations
     */
-    public func setAnnotations(annotations: [ARAnnotation])
+    public func setAnnotations(annotations: [FindrAnnotation])
     {
-        var validAnnotations: [ARAnnotation] = []
+        var validAnnotations: [FindrAnnotation] = []
         // Don't use annotations without valid location
         for annotation in annotations
         {
@@ -332,7 +332,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         self.reloadAnnotations()
     }
     
-    public func getAnnotations() -> [ARAnnotation]
+    public func getAnnotations() -> [FindrAnnotation]
     {
         return self.annotations
     }
@@ -354,7 +354,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     /// Creates annotation views. All views are created at once, for active annotations. This reduces lag when rotating.
     private func createAnnotationViews()
     {
-        var annotationViews: [ARAnnotationView] = []
+        var annotationViews: [FindrAnnotationView] = []
         let activeAnnotations = self.activeAnnotations  // Which annotations are active is determined by number of properties - distance, vertical level etc.
         
         // Removing existing annotation views
@@ -381,7 +381,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
                 continue
             }
             
-            var annotationView: ARAnnotationView? = nil
+            var annotationView: FindrAnnotationView? = nil
             if annotation.annotationView != nil
             {
                 annotationView = annotation.annotationView
@@ -437,7 +437,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
             let sortedArray: NSMutableArray = NSMutableArray(array: self.annotations)
             let sortDesc = NSSortDescriptor(key: "distanceFromUser", ascending: true)
             sortedArray.sortUsingDescriptors([sortDesc])
-            self.annotations = sortedArray as [AnyObject] as! [ARAnnotation]
+            self.annotations = sortedArray as [AnyObject] as! [FindrAnnotation]
         }
     }
     
@@ -527,7 +527,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         }
     }
     
-    private func xPositionForAnnotationView(annotationView: ARAnnotationView, heading: Double) -> CGFloat
+    private func xPositionForAnnotationView(annotationView: FindrAnnotationView, heading: Double) -> CGFloat
     {
         if annotationView.annotation == nil { return 0 }
         let annotation = annotationView.annotation!
@@ -561,7 +561,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         return xPos
     }
     
-    private func yPositionForAnnotationView(annotationView: ARAnnotationView) -> CGFloat
+    private func yPositionForAnnotationView(annotationView: FindrAnnotationView) -> CGFloat
     {
         
         var distanceInM = annotationView.annotation?.beaconDistance
@@ -616,7 +616,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         // Putting each annotation in its dictionary(each level has its own dictionary)
         for i in 0.stride(to: self.activeAnnotations.count, by: 1)
         {
-            let annotation = self.activeAnnotations[i] as ARAnnotation
+            let annotation = self.activeAnnotations[i] as FindrAnnotation
             if annotation.verticalLevel <= self.maxVerticalLevel
             {
                 let array = dictionary[annotation.verticalLevel] as? NSMutableArray
@@ -641,12 +641,12 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
 
             for i in 0.stride(to: annotationsForCurrentLevel.count, by: 1)
             {
-                let annotation1 = annotationsForCurrentLevel[i] as! ARAnnotation
+                let annotation1 = annotationsForCurrentLevel[i] as! FindrAnnotation
                 if annotation1.verticalLevel != level { continue }  // Can happen if it was moved to next level by previous annotation, it will be handled in next loop
                 
                 for j in (i+1).stride(to: annotationsForCurrentLevel.count, by: 1)
                 {
-                    let annotation2 = annotationsForCurrentLevel[j] as! ARAnnotation
+                    let annotation2 = annotationsForCurrentLevel[j] as! FindrAnnotation
                     if annotation1 == annotation2 || annotation2.verticalLevel != level
                     {
                         continue
@@ -736,9 +736,9 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         }
     }
     
-    private func getAnyAnnotationView() -> ARAnnotationView?
+    private func getAnyAnnotationView() -> FindrAnnotationView?
     {
-        var anyAnnotationView: ARAnnotationView? = nil
+        var anyAnnotationView: FindrAnnotationView? = nil
         
         if let annotationView = self.annotationViews.first
         {
@@ -801,11 +801,11 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     }
     
     /// Determines which annotations are active and which are inactive. If some of the input parameters is nil, then it won't filter by that parameter.
-    private func filteredAnnotations(maxVerticalLevel: Int?, maxVisibleAnnotations: Int?, maxDistance: Double?) -> [ARAnnotation]
+    private func filteredAnnotations(maxVerticalLevel: Int?, maxVisibleAnnotations: Int?, maxDistance: Double?) -> [FindrAnnotation]
     {
         let nsAnnotations: NSMutableArray = NSMutableArray(array: self.annotations)
         
-        var filteredAnnotations: [ARAnnotation] = []
+        var filteredAnnotations: [FindrAnnotation] = []
         var count = 0
         
         let checkMaxVisibleAnnotations = maxVisibleAnnotations != nil
@@ -814,7 +814,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
         
         for nsAnnotation in nsAnnotations
         {
-            let annotation = nsAnnotation as! ARAnnotation
+            let annotation = nsAnnotation as! FindrAnnotation
             
             // filter by maxVisibleAnnotations
             if(checkMaxVisibleAnnotations && count >= maxVisibleAnnotations!)
@@ -995,7 +995,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     private func loadCamera()
     {
         //===== Video device/video input
-        let captureSessionResult = ARViewController.createCaptureSession()
+        let captureSessionResult = FindrViewController.createCaptureSession()
         self.cameraLayer?.removeFromSuperlayer()
 
         if captureSessionResult.error == nil && captureSessionResult.session != nil
@@ -1072,7 +1072,7 @@ public class ARViewController: UIViewController, ARTrackingManagerDelegate
     {
         self.cameraSession.startRunning()
         self.trackingManager.startTracking()
-        self.displayTimer = CADisplayLink(target: self, selector: #selector(ARViewController.displayTimerTick))
+        self.displayTimer = CADisplayLink(target: self, selector: #selector(FindrViewController.displayTimerTick))
         self.displayTimer?.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
     }
     

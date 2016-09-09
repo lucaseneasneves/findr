@@ -11,17 +11,17 @@ import CoreMotion
 import CoreLocation
 
 
-@objc protocol ARTrackingManagerDelegate : NSObjectProtocol
+@objc protocol FindrTrackingManagerDelegate : NSObjectProtocol
 {
-    optional func arTrackingManager(trackingManager: ARTrackingManager, didUpdateUserLocation location: CLLocation?)
-    optional func arTrackingManager(trackingManager: ARTrackingManager, didUpdateReloadLocation location: CLLocation?)
-    optional func onUserAppearLost(trackingManager: ARTrackingManager, didUpdateReloadLocation location: CLLocation?)
+    optional func arTrackingManager(trackingManager: FindrTrackingManager, didUpdateUserLocation location: CLLocation?)
+    optional func arTrackingManager(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
+    optional func onUserAppearLost(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
     optional func logText(text: String)
 }
 
 
 /// Class used internally by ARViewController for location and orientation calculations.
-public class ARTrackingManager: NSObject, CLLocationManagerDelegate
+public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
 {
     /**
      *      Defines whether altitude is taken into account when calculating distances. Set this to false if your annotations 
@@ -60,7 +60,7 @@ public class ARTrackingManager: NSObject, CLLocationManagerDelegate
     private(set) internal var tracking = false
     private(set) internal var userLocation: CLLocation?
     private(set) internal var heading: Double = 0
-    internal var delegate: ARTrackingManagerDelegate?
+    internal var delegate: FindrTrackingManagerDelegate?
     internal var orientation: CLDeviceOrientation = CLDeviceOrientation.Portrait
     {
         didSet
@@ -212,7 +212,7 @@ public class ARTrackingManager: NSObject, CLLocationManagerDelegate
             // Scheduling report in 5s
             else
             {
-                self.reportLocationTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: #selector(ARTrackingManager.reportLocationToDelegate), userInfo: nil, repeats: false)
+                self.reportLocationTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: #selector(FindrTrackingManager.reportLocationToDelegate), userInfo: nil, repeats: false)
             }
         }
     }

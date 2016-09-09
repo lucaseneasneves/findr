@@ -5,12 +5,14 @@
 //  Created by Danijel Huis on 23/04/15.
 //  Copyright (c) 2015 Danijel Huis. All rights reserved.
 //
+// 2016 AIS Hackathon
+// Pedro Fabrino ,  Lucas Neves
 
 import UIKit
 import CoreLocation
 
 /// Defines POI with title and location.
-public class ARAnnotation: NSObject
+public class FindrAnnotation: NSObject
 {
     /// Title of annotation
     public var title: String?
@@ -20,7 +22,7 @@ public class ARAnnotation: NSObject
     public var beaconDistance: Double?
     
     /// View for annotation. It is set inside ARViewController after fetching view from dataSource.
-    internal(set) public var annotationView: ARAnnotationView?
+    internal(set) public var annotationView: FindrAnnotationView?
     
     // Internal use only, do not set this properties
     internal(set) public var distanceFromUser: Double = 0
