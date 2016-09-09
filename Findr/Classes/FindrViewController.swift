@@ -70,7 +70,7 @@ public class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     */
     public var maxDistance: Double = 0
     /// Class for managing geographical calculations. Use it to set properties like reloadDistanceFilter, userDistanceFilter and altitudeSensitive
-    private(set) public var trackingManager: ARTrackingManager = ARTrackingManager()
+    private(set) public var trackingManager: FindrTrackingManager = FindrTrackingManager()
     /// Image for close button. If not set, default one is used.
     //public var closeButtonImage = UIImage(named: "hdar_close", inBundle: NSBundle(forClass: ARViewController.self), compatibleWithTraitCollection: nil)
     public var closeButtonImage: UIImage?
@@ -924,7 +924,7 @@ public class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         return sqrt(sumOfSquaredAvgDiff / length)
     }
     
-    internal func arTrackingManager(trackingManager: ARTrackingManager, didUpdateUserLocation: CLLocation?)
+    internal func arTrackingManager(trackingManager: FindrTrackingManager, didUpdateUserLocation: CLLocation?)
     {
         // shouldReloadAnnotations will be true if reloadAnnotations was called before location was fetched
         if self.shouldReloadAnnotations
@@ -952,7 +952,7 @@ public class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         }
     }
     
-    internal func arTrackingManager(trackingManager: ARTrackingManager, didUpdateReloadLocation: CLLocation?)
+    internal func arTrackingManager(trackingManager: FindrTrackingManager, didUpdateReloadLocation: CLLocation?)
     {
         // Manual reload?
         if didUpdateReloadLocation != nil && self.dataSource != nil && self.dataSource!.respondsToSelector(#selector(ARDataSource.ar(_:shouldReloadWithLocation:)))
