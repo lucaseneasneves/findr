@@ -12,8 +12,8 @@ import CoreLocation
 
 @objc protocol FindrTrackingManagerDelegate : NSObjectProtocol
 {
-    optional func arTrackingManager(trackingManager: FindrTrackingManager, didUpdateUserLocation location: CLLocation?)
-    optional func arTrackingManager(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
+    optional func findrTrackingManager(trackingManager: FindrTrackingManager, didUpdateUserLocation location: CLLocation?)
+    optional func findrTrackingManager(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
     optional func onUserAppearLost(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
     optional func logText(text: String)
 }
