@@ -17,7 +17,7 @@ Findr is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod "Findr"
+pod "Findr" , :git => 'https://github.com/fatalhck/findr'
 ```
 
 ## Author
