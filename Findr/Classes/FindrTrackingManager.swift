@@ -1,10 +1,9 @@
 //
-//  ARTrackingManager.swift
-//  HDAugmentedRealityDemo
-//
 //  Created by Danijel Huis on 22/04/15.
 //  Copyright (c) 2015 Danijel Huis. All rights reserved.
 //
+// 2016 AIS Hackhathon 
+// Pedro Fabrino, Lucas Neves, Jonathan Nobre
 
 import UIKit
 import CoreMotion
@@ -219,12 +218,12 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     
     internal func reportLocationToDelegate()
     {
-        self.delegate?.arTrackingManager?(self, didUpdateUserLocation: self.userLocation)
+        self.delegate?.findrTrackingManager?(self, didUpdateUserLocation: self.userLocation)
         
         if self.userLocation != nil && self.reloadLocationPrevious != nil && self.reloadLocationPrevious!.distanceFromLocation(self.userLocation!) > self.reloadDistanceFilter
         {
             self.reloadLocationPrevious = self.userLocation
-            self.delegate?.arTrackingManager?(self, didUpdateReloadLocation: self.userLocation)
+            self.delegate?.findrTrackingManager?(self, didUpdateReloadLocation: self.userLocation)
         }
         
         self.reportLocationTimer?.invalidate()
