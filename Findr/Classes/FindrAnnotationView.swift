@@ -11,18 +11,18 @@ import UIKit
 /// View for annotation. Subclass to customize. Annotation views should be lightweight,
 /// try to avoid xibs and autolayout.
 /// bindUi method is called when distance/azimuth is set in ARViewController.
-public class FindrAnnotationView: UIView
+open class FindrAnnotationView: UIView
 {
-    public weak var annotation: FindrAnnotation?{
+    open weak var annotation: FindrAnnotation?{
         didSet{
             bindUi()
         }
     }
-    private var initialized: Bool = false
+    fileprivate var initialized: Bool = false
     
     public init()
     {
-        super.init(frame: CGRectZero)
+        super.init(frame: CGRect.zero)
         self.initializeInternal()
     }
 
@@ -38,7 +38,7 @@ public class FindrAnnotationView: UIView
         self.initializeInternal()
     }
     
-    private func initializeInternal()
+    fileprivate func initializeInternal()
     {
         if self.initialized
         {
@@ -48,19 +48,19 @@ public class FindrAnnotationView: UIView
         self.initialize()
     }
     
-    public override func awakeFromNib()
+    open override func awakeFromNib()
     {
         self.bindUi()
     }
     
     /// Will always be called once, no need to call super
-    public func initialize()
+    open func initialize()
     {
     
     }
     
     /// Called when distance/azimuth changes, intended to be used in subclasses
-    public func bindUi()
+    open func bindUi()
     {
         
     }

@@ -12,25 +12,25 @@ import UIKit
 import CoreLocation
 
 /// Defines POI with title and location.
-public class FindrAnnotation: NSObject
+open class FindrAnnotation: NSObject
 {
     /// Title of annotation
-    public var title: String?
+    open var title: String?
     /// Location of annotation
-    public var location: CLLocation?
+    open var location: CLLocation?
     
-    public var beaconDistance: Double?
+    open var beaconDistance: Double?
     
     /// View for annotation. It is set inside ARViewController after fetching view from dataSource.
-    internal(set) public var annotationView: FindrAnnotationView?
+    internal(set) open var annotationView: FindrAnnotationView?
     
     // Internal use only, do not set this properties
-    internal(set) public var distanceFromUser: Double = 0
-    internal(set) public var azimuth: Double = 0
-    internal(set) public var verticalLevel: Int = 0
-    internal(set) public var active: Bool = false
+    internal(set) open var distanceFromUser: Double = 0
+    internal(set) open var azimuth: Double = 0
+    internal(set) open var verticalLevel: Int = 0
+    internal(set) open var active: Bool = false
     
-    public override var description: String{
+    open override var description: String{
         get{
             return "\(title) - \(location) - DFU: \(distanceFromUser) - VL: \(verticalLevel)"
         }

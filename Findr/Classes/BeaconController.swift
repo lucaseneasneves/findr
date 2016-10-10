@@ -13,7 +13,7 @@ public protocol BeaconDelegate {
     
 }
 
-public class BeaconController: NSObject, CLLocationManagerDelegate {
+open class BeaconController: NSObject, CLLocationManagerDelegate {
     static let sharedInstance = BeaconController()
     
     let locationManager = CLLocationManager()
@@ -21,7 +21,7 @@ public class BeaconController: NSObject, CLLocationManagerDelegate {
     let advertisingBeacon = AdvertisingBeacon()
     let rangingBeacon = RangingBeacon()
     
-    private override init() {
+    fileprivate override init() {
         super.init()
         self.locationManager.delegate = self
     }
@@ -30,26 +30,26 @@ public class BeaconController: NSObject, CLLocationManagerDelegate {
         self.locationManager.requestAlwaysAuthorization()
     }
     
-    func startRanging(beaconRegion: CLBeaconRegion!){
+    func startRanging(_ beaconRegion: CLBeaconRegion!){
         beaconRegion.notifyEntryStateOnDisplay = true
         self.rangingBeacon.startRanging(inRegion: beaconRegion, usingLocationManager: self.locationManager)
     }
     
-    func stopRanging(beaconRegion: CLBeaconRegion!)  {
+    func stopRanging(_ beaconRegion: CLBeaconRegion!)  {
         self.rangingBeacon.stopRanging(inRegion: beaconRegion, locationManager: self.locationManager)
     }
     
     // CLLocationManagerDelegate Delegates
     
-    public func locationManager(manager: CLLocationManager, monitoringDidFailForRegion region: CLRegion?, withError error: NSError) {
-        print("Failed monitoring region: \(error.description)")
+    open func locationManager(_ manager: CLLocationManager, monitoringDidFailFor region: CLRegion?, withError error: Error) {
+        print("Failed monitoring region: \(error.localizedDescription)")
     }
     
-    public func locationManager(manager: CLLocationManager, didFailWithError error: NSError) {
-        print("Location manager failed: \(error.description)")
+    open func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location manager failed: \(error.localizedDescription)")
     }
     
-    public func locationManager(manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], inRegion region: CLBeaconRegion) {
+    open func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
         //print("Region Major: \(region.major!) + Region Minor: \(region.minor!) + Region: \(region.proximityUUID.UUIDString)")
         
         for beacon in beacons {
