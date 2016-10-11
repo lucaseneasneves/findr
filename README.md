@@ -24,7 +24,7 @@ Lucas Neves, Pedro Fabrino, Jonathan Nobre
 
 1. Create a Capture Session with FindrViewController and verify if result don't have any error
 
-  ```swift3
+  ```swift
   let result = FindrViewController.createCaptureSession()
   if result.error != nil {
     // present alert error
@@ -43,25 +43,25 @@ Lucas Neves, Pedro Fabrino, Jonathan Nobre
 4. Append annotation to empty FindrAnnotations array
 5. Init FindrViewController and set the data source to self
 
-  ```swift 3
+  ```swift
   let arViewController = FindrViewController()
   arViewController.dataSource = self
   ```
 6. Set the FindrAnottations array to instanciated FindrViewController
 
-  ```swift 3
+  ```swift
   arViewController.setAnnotations(annotations)
   ```
 
 7. Present then
 
-  ```swift3
+  ```swift
   self.present(arViewController, animated: true, completion: nil)
   ```
 
 8. Make an extension of ARDataSource and implements this method:
 
-  ```swift3
+  ```swift
   func ar(_ findrViewController: FindrViewController, viewForAnnotation: FindrAnnotation) -> FindrAnnotationView {
 
 		let annotation = FindrAnnotationView(frame: YOUR FRAME CONFIGURATION)
