@@ -123,6 +123,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate var MAXIMUM_X_VARIATIONS: Double = 80
     fileprivate var MAXIMUM_X_STD: Double = 40
     fileprivate var arrowViews: [UIView] = []
+	fileprivate var leftArrowImage: UIImage = UIImage(named: "left_arrow")!
+	fileprivate var rightArrowImage: UIImage = UIImage(named: "right_arrow")!
     open var userLostMessages: (title: String, message: String)?
 
     //==========================================================================================================================================================
@@ -361,7 +363,18 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             self.shouldReloadAnnotations = true
         }
     }
-    
+	
+	/// Set the arrows images
+	// Set Left arrow View converting to a image
+	open func setLeftArrowFromView(leftArrow:UIView){
+		leftArrowImage = UIImage.convertViewToImage(view: leftArrow)
+	}
+
+	// Set right arrow View converting to a image
+	open func setRightArrowFromView(rightArrow:UIView){
+		rightArrowImage = UIImage.convertViewToImage(view: rightArrow)
+	}
+
     /// Creates annotation views. All views are created at once, for active annotations. This reduces lag when rotating.
     fileprivate func createAnnotationViews()
     {
@@ -490,7 +503,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
                         
                         let x = delta > 0 ? 10 : Double(self.view.frame.maxX) - 70
                         
-                        view.image  =  delta > 0 ? UIImage(named:"left_arrow") : UIImage(named:"right_arrow")
+                        view.image  =  delta > 0 ? leftArrowImage : rightArrowImage
                         view.frame = CGRect(x: x , y: Double(self.view.frame.maxY/2), width: 60, height: 60)
                         self.view.addSubview(view)
                         self.arrowViews.append(view)
