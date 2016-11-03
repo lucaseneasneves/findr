@@ -27,7 +27,7 @@ public protocol BeaconAdvertisingDelegate {
     func advertisingOperationDidFailToStart()
 }
 
-public class AdvertisingBeacon: NSObject, CBPeripheralManagerDelegate {
+open class AdvertisingBeacon: NSObject, CBPeripheralManagerDelegate {
     
     /// An instance of a CBPeripheralManager, which is used for advertising a beacon to nearby devices.
     var peripheralManager = CBPeripheralManager(delegate: nil, queue: nil, options: nil)
@@ -39,8 +39,8 @@ public class AdvertisingBeacon: NSObject, CBPeripheralManagerDelegate {
         self.peripheralManager.delegate = self
     }
     
-    func broadcast(beacon: Beacon!) {
-        let beaconPeripheralData: NSDictionary = beacon.getRegion().peripheralDataWithMeasuredPower(nil) as NSDictionary
+    func broadcast(_ beacon: Beacon!) {
+        let beaconPeripheralData: NSDictionary = beacon.getRegion().peripheralData(withMeasuredPower: nil) as NSDictionary
         self.peripheralManager.startAdvertising(beaconPeripheralData as? [String : AnyObject])
     }
     
@@ -53,7 +53,7 @@ public class AdvertisingBeacon: NSObject, CBPeripheralManagerDelegate {
     
     /// CBPeripheralManagerDelegate Delegates
     
-    public func peripheralManagerDidStartAdvertising(peripheral: CBPeripheralManager, error: NSError?) {
+    open func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
         if error != nil {
             print("Couldn't turn on advertising: \(error)")
             delegate?.advertisingOperationDidFailToStart()
@@ -65,11 +65,11 @@ public class AdvertisingBeacon: NSObject, CBPeripheralManagerDelegate {
         }
     }
     
-    public func peripheralManagerDidUpdateState(peripheral: CBPeripheralManager) {
-        if peripheralManager.state == .PoweredOff {
+    open func peripheralManagerDidUpdateState(_ peripheral: CBPeripheralManager) {
+        if peripheralManager.state == .poweredOff {
             print("Peripheral manager is off.")
             delegate?.advertisingOperationDidFailToStart()
-        } else if peripheralManager.state == .PoweredOn {
+        } else if peripheralManager.state == .poweredOn {
             print("Peripheral manager is on.")
         }
     }

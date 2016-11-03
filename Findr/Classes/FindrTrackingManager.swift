@@ -12,22 +12,22 @@ import CoreLocation
 
 @objc protocol FindrTrackingManagerDelegate : NSObjectProtocol
 {
-    optional func findrTrackingManager(trackingManager: FindrTrackingManager, didUpdateUserLocation location: CLLocation?)
-    optional func findrTrackingManager(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
-    optional func onUserAppearLost(trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
-    optional func logText(text: String)
+    @objc optional func findrTrackingManager(_ trackingManager: FindrTrackingManager, didUpdateUserLocation location: CLLocation?)
+    @objc optional func findrTrackingManager(_ trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
+    @objc optional func onUserAppearLost(_ trackingManager: FindrTrackingManager, didUpdateReloadLocation location: CLLocation?)
+    @objc optional func logText(_ text: String)
 }
 
 
 /// Class used internally by ARViewController for location and orientation calculations.
-public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
+open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
 {
     /**
      *      Defines whether altitude is taken into account when calculating distances. Set this to false if your annotations 
      *      don't have altitude values. Note that this is only used for distance calculation, it doesn't have effect on vertical 
      *      levels of annotations. Default value is false.
      */
-    public var altitudeSensitive = false 
+    open var altitudeSensitive = false 
  
     /**
      *      Specifies how often the visibilities of annotations are reevaluated.
@@ -37,13 +37,13 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
      *      Default value is 75m.
      *
      */
-    public var reloadDistanceFilter: CLLocationDistance!    // Will be set in init
+    open var reloadDistanceFilter: CLLocationDistance!    // Will be set in init
     
     /**
      *      Specifies how often are distances and azimuths recalculated for visible annotations.
      *      Default value is 25m.
      */
-    public var userDistanceFilter: CLLocationDistance!      // Will be set in init
+    open var userDistanceFilter: CLLocationDistance!      // Will be set in init
     {
         didSet
         {
@@ -52,15 +52,15 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     }
     
     
-    public var motionManager: CMMotionManager = CMMotionManager()
+    open var motionManager: CMMotionManager = CMMotionManager()
     
     //===== Internal variables
-    private(set) internal var locationManager: CLLocationManager = CLLocationManager()
-    private(set) internal var tracking = false
-    private(set) internal var userLocation: CLLocation?
-    private(set) internal var heading: Double = 0
+    fileprivate(set) internal var locationManager: CLLocationManager = CLLocationManager()
+    fileprivate(set) internal var tracking = false
+    fileprivate(set) internal var userLocation: CLLocation?
+    fileprivate(set) internal var heading: Double = 0
     internal var delegate: FindrTrackingManagerDelegate?
-    internal var orientation: CLDeviceOrientation = CLDeviceOrientation.Portrait
+    internal var orientation: CLDeviceOrientation = CLDeviceOrientation.portrait
     {
         didSet
         {
@@ -76,12 +76,12 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     }
     
     //===== Private variables
-    private var lastAcceleration: CMAcceleration = CMAcceleration(x: 0, y: 0, z: 0)
-    private var reloadLocationPrevious: CLLocation?
-    private var pitchPrevious: Double = 0
-    private var reportLocationTimer: NSTimer?
-    private var reportLocationDate: NSTimeInterval?
-    private var debugLocation: CLLocation?
+    fileprivate var lastAcceleration: CMAcceleration = CMAcceleration(x: 0, y: 0, z: 0)
+    fileprivate var reloadLocationPrevious: CLLocation?
+    fileprivate var pitchPrevious: Double = 0
+    fileprivate var reportLocationTimer: Timer?
+    fileprivate var reportLocationDate: TimeInterval?
+    fileprivate var debugLocation: CLLocation?
     
 
 
@@ -91,7 +91,7 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         self.initialize()
     }
     
-    private func initialize()
+    fileprivate func initialize()
     {
         // Defaults
         self.reloadDistanceFilter = 75
@@ -114,7 +114,7 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         // Request authorization if state is not determined
         if CLLocationManager.locationServicesEnabled()
         {
-            if CLLocationManager.authorizationStatus() == CLAuthorizationStatus.NotDetermined
+            if CLLocationManager.authorizationStatus() == CLAuthorizationStatus.notDetermined
             {
                 self.locationManager.requestWhenInUseAuthorization()
 //                if #available(iOS 8.0, *)
@@ -159,12 +159,12 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     // MARK:                                                        CLLocationManagerDelegate
     //==========================================================================================================================================================
 
-    public func locationManager(manager: CLLocationManager, didUpdateHeading newHeading: CLHeading)
+    open func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading)
     {
         self.heading = fmod(newHeading.trueHeading, 360.0)
     }
     
-    public func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
+    open func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
     {
         if locations.count > 0
         {
@@ -211,7 +211,7 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
             // Scheduling report in 5s
             else
             {
-                self.reportLocationTimer = NSTimer.scheduledTimerWithTimeInterval(5, target: self, selector: #selector(FindrTrackingManager.reportLocationToDelegate), userInfo: nil, repeats: false)
+                self.reportLocationTimer = Timer.scheduledTimer(timeInterval: 5, target: self, selector: #selector(FindrTrackingManager.reportLocationToDelegate), userInfo: nil, repeats: false)
             }
         }
     }
@@ -220,7 +220,7 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     {
         self.delegate?.findrTrackingManager?(self, didUpdateUserLocation: self.userLocation)
         
-        if self.userLocation != nil && self.reloadLocationPrevious != nil && self.reloadLocationPrevious!.distanceFromLocation(self.userLocation!) > self.reloadDistanceFilter
+        if self.userLocation != nil && self.reloadLocationPrevious != nil && self.reloadLocationPrevious!.distance(from: self.userLocation!) > self.reloadDistanceFilter!
         {
             self.reloadLocationPrevious = self.userLocation
             self.delegate?.findrTrackingManager?(self, didUpdateReloadLocation: self.userLocation)
@@ -228,7 +228,7 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         
         self.reportLocationTimer?.invalidate()
         self.reportLocationTimer = nil
-        self.reportLocationDate = NSDate().timeIntervalSince1970
+        self.reportLocationDate = Date().timeIntervalSince1970
     }
     
     
@@ -254,19 +254,19 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         let deviceOrientation = self.orientation
         var angle: Double = 0
         
-        if deviceOrientation == CLDeviceOrientation.Portrait
+        if deviceOrientation == CLDeviceOrientation.portrait
         {
             angle = atan2(self.lastAcceleration.y, self.lastAcceleration.z)
         }
-        else if deviceOrientation == CLDeviceOrientation.PortraitUpsideDown
+        else if deviceOrientation == CLDeviceOrientation.portraitUpsideDown
         {
             angle = atan2(-self.lastAcceleration.y, self.lastAcceleration.z)
         }
-        else if deviceOrientation == CLDeviceOrientation.LandscapeLeft
+        else if deviceOrientation == CLDeviceOrientation.landscapeLeft
         {
             angle = atan2(self.lastAcceleration.x, self.lastAcceleration.z)
         }
-        else if deviceOrientation == CLDeviceOrientation.LandscapeRight
+        else if deviceOrientation == CLDeviceOrientation.landscapeRight
         {
             angle = atan2(-self.lastAcceleration.x, self.lastAcceleration.z)
         }
@@ -277,7 +277,7 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         return angle
     }
     
-    internal func azimuthFromUserToLocation(location: CLLocation) -> Double
+    internal func azimuthFromUserToLocation(_ location: CLLocation) -> Double
     {
         var azimuth: Double = 0
         if self.userLocation == nil
@@ -301,12 +301,12 @@ public class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         return azimuth;
     }
     
-    internal func startDebugMode(location: CLLocation)
+    internal func startDebugMode(_ location: CLLocation)
     {
         self.debugLocation = location
         self.userLocation = location;
     }
-    internal func stopDebugMode(location: CLLocation)
+    internal func stopDebugMode(_ location: CLLocation)
     {
         self.debugLocation = nil;
         self.userLocation = nil

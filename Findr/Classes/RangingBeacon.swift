@@ -19,12 +19,12 @@ public protocol RangingDelegate {
     /**
      Triggered when the ranging operation has failed to start.
      */
-    func rangingOperationDidFailToStart(reason: String!)
+    func rangingOperationDidFailToStart(_ reason: String!)
     
     /**
      Triggered when the ranging operation has failed to start due to the last authorization denial.
      */
-    func rangingOperationDidFailToStartDueToAuthorization(reason: String!)
+    func rangingOperationDidFailToStartDueToAuthorization(_ reason: String!)
     
     /**
      Triggered when the ranging operation has stopped successfully.
@@ -37,10 +37,10 @@ public protocol RangingDelegate {
      :param: beacons An array of provided beacons that the ranging operation detected.
      :param: region A provided region whose beacons the operation is trying to range.
      */
-    func rangingOperationDidRangeBeacons(beacons: [AnyObject]!, inRegion region: CLBeaconRegion!)
+    func rangingOperationDidRangeBeacons(_ beacons: [AnyObject]!, inRegion region: CLBeaconRegion!)
 }
 
-public class RangingBeacon: NSObject {
+open class RangingBeacon: NSObject {
     
     var delegate: RangingDelegate?
     
@@ -63,25 +63,25 @@ public class RangingBeacon: NSObject {
         }
         
         switch CLLocationManager.authorizationStatus() {
-            case .AuthorizedAlways, .AuthorizedWhenInUse:
+            case .authorizedAlways, .authorizedWhenInUse:
                 print("Ranging turned on for beacons in region: \(region)")
                 
-                locationManager.startRangingBeaconsInRegion(region)
+                locationManager.startRangingBeacons(in: region)
                 delegate?.rangingOperationDidStartSuccessfully()
-            case .Denied, .Restricted:
+            case .denied, .restricted:
                 delegate?.rangingOperationDidFailToStartDueToAuthorization("Couldn't turn on ranging: Required Location Access (When In Use) missing.")
-            case .NotDetermined:
+            case .notDetermined:
                 locationManager.requestWhenInUseAuthorization()
         }
     }
     
-    public func stopRanging(inRegion region: CLBeaconRegion!, locationManager: CLLocationManager!)  {
+    open func stopRanging(inRegion region: CLBeaconRegion!, locationManager: CLLocationManager!)  {
         if locationManager.rangedRegions.isEmpty {
             print("Didn't turn off ranging: Ranging already off.")
             return
         }
         
-        locationManager.stopRangingBeaconsInRegion(region)
+        locationManager.stopRangingBeacons(in: region)
         
         delegate?.rangingOperationDidStopSuccessfully()
         
