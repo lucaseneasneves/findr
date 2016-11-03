@@ -220,7 +220,7 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     {
         self.delegate?.findrTrackingManager?(self, didUpdateUserLocation: self.userLocation)
         
-        if self.userLocation != nil && self.reloadLocationPrevious != nil && self.reloadLocationPrevious!.distance(from: self.userLocation!) > self.reloadDistanceFilter
+        if self.userLocation != nil && self.reloadLocationPrevious != nil && self.reloadLocationPrevious!.distance(from: self.userLocation!) > self.reloadDistanceFilter!
         {
             self.reloadLocationPrevious = self.userLocation
             self.delegate?.findrTrackingManager?(self, didUpdateReloadLocation: self.userLocation)

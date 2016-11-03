@@ -7,7 +7,7 @@ let H_PIXELS_PER_DEGREE: CGFloat = 14                            // How many pix
 let OVERLAY_VIEW_WIDTH: CGFloat = 360 * H_PIXELS_PER_DEGREE      // 360 degrees x sensitivity
 
 let MAX_VISIBLE_ANNOTATIONS: Int = 500                           // Do not change, can affect performance
-let MAX_VERTICAL_LEVELS: Int = 10                                // Do not change, can affect performance
+let MAX_VERTICAL_LEVELS: Int = 5                               // Do not change, can affect performance
 
 internal func radiansToDegrees(_ radians: Double) -> Double
 {
@@ -67,5 +67,23 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
     @objc optional func ar(_ findrViewController: FindrViewController, shouldReloadWithLocation location: CLLocation) -> [FindrAnnotation]
 
 }
+
+//MARK: FindrViewController Delegate
+protocol FindrViewControllerDelegate {
+    
+    func findrViewControllerFixedVerticalPositionForAnnotation(findrViewController: FindrViewController)-> CGFloat?
+    func findrViewControllerWillShowAnnotationView(findrViewController: FindrViewController, annotationView: FindrAnnotationView)
+    func findrViewControllerWillReloadAnnotations(findrViewController: FindrViewController, annotations: [FindrAnnotation])
+    func findrViewControllerUserDidGetLost(findrViewController: FindrViewController) -> Void
+    func findrViewControllerViewForLeftIndicator(findrViewController: FindrViewController)-> UIView
+    func findrViewControllerViewForRightIndicator(findrViewController: FindrViewController) -> UIView
+    func findrViewControllerFrameForRightIndicator(findrViewController: FindrViewController) -> CGRect
+    func findrViewControllerFrameForLeftIndicator(findrViewController: FindrViewController) -> CGRect
+    func findrViewControllerUpdateLeftIndicatorView(findrViewController: FindrViewController, view: UIView)
+    func findrViewControllerUpdateRightIndicatorView(findrViewController: FindrViewController, view: UIView)
+}
+
+
+
 
 

@@ -101,9 +101,16 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     
     open var debugAction:(()->Void)?
     
+    //MARK: Delegate View Property
+    var delegate: FindrViewControllerDelegate? {
+        didSet{
+            initializeArrows()
+        }
+    }
+    
     //===== Private
     fileprivate var initialized: Bool = false
-    fileprivate var cameraSession: AVCaptureSession = AVCaptureSession()
+    fileprivate var cameraSession: AVCaptureSession! = AVCaptureSession()
     fileprivate var overlayView: OverlayView = OverlayView()
     fileprivate var displayTimer: CADisplayLink?
     fileprivate var cameraLayer: AVCaptureVideoPreviewLayer?    // Will be set in init
@@ -114,18 +121,22 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate var debugLabel: UILabel?
     fileprivate var reloadInProgress = false
     fileprivate var reloadToken: Int = 0
-    fileprivate var reloadLock = NSRecursiveLock()
+    fileprivate var reloadLock : NSRecursiveLock! = NSRecursiveLock()
     fileprivate var annotations: [FindrAnnotation] = []
     fileprivate var activeAnnotations: [FindrAnnotation] = []
     fileprivate var closeButton: UIButton?
     fileprivate var currentHeading: Double = 0
     fileprivate var currentXVariations: [Double] = []
-    fileprivate var MAXIMUM_X_VARIATIONS: Double = 80
-    fileprivate var MAXIMUM_X_STD: Double = 40
-    fileprivate var arrowViews: [UIView] = []
-	fileprivate var leftArrowImage: UIImage = UIImage(named: "left_arrow")!
-	fileprivate var rightArrowImage: UIImage = UIImage(named: "right_arrow")!
+    fileprivate var MAXIMUM_X_VARIATIONS: Double = 100
+    fileprivate var MAXIMUM_X_STD: Double = 80
+//    fileprivate var arrowViews: [UIView] = []
+	fileprivate var leftArrowImage: UIImage!
+	fileprivate var rightArrowImage: UIImage!
     open var userLostMessages: (title: String, message: String)?
+
+    //Arrows views
+    fileprivate var leftArrowView: UIView!
+    fileprivate var rigthArrowView: UIView!
 
     //==========================================================================================================================================================
     // MARK:                                                        Init
@@ -149,6 +160,26 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
         self.initializeInternal()
 
+    }
+    
+    func initializeArrows(){
+        if let unwrappedDelegate = delegate {
+                leftArrowView = unwrappedDelegate.findrViewControllerViewForLeftIndicator(findrViewController: self)
+                leftArrowView.frame = unwrappedDelegate.findrViewControllerFrameForLeftIndicator(findrViewController: self)
+                rigthArrowView  = unwrappedDelegate.findrViewControllerViewForRightIndicator(findrViewController: self)
+                rigthArrowView.frame = unwrappedDelegate.findrViewControllerFrameForRightIndicator(findrViewController: self)
+        }else{
+            var view = UIImageView()
+            view.image = UIImage(named:"left_arrow")
+            view.frame = CGRect(x: 10.0 , y: Double(self.view.frame.maxY/2), width: 60, height: 60)
+            leftArrowView = view
+            
+            view = UIImageView()
+            view.image  =  UIImage(named:"right_arrow")
+            view.frame = CGRect(x: Double(self.view.frame.maxX) - 70 , y: Double(self.view.frame.maxY/2), width: 60, height: 60)
+            rigthArrowView = view
+            //                            self.arrowViews.append(view)
+        }
     }
     
     internal func initializeInternal()
@@ -269,6 +300,9 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         closeButton.autoresizingMask = [UIViewAutoresizing.flexibleLeftMargin, UIViewAutoresizing.flexibleBottomMargin]
         self.view.addSubview(closeButton)
         self.closeButton = closeButton
+        
+        initializeArrows()
+
     }
     
     fileprivate func onViewDidAppear()
@@ -283,8 +317,10 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate func onViewDidDisappear()
     {
         stopCamera()
+        clear()
     }
 
+    
     
     internal func closeButtonTap()
     {
@@ -357,6 +393,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         {
             self.shouldReloadAnnotations = false
             self.reload(calculateDistanceAndAzimuth: true, calculateVerticalLevels: true, createAnnotationViews: true)
+            self.delegate?.findrViewControllerWillReloadAnnotations(findrViewController: self, annotations: getAnnotations())
         }
         else
         {
@@ -364,16 +401,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         }
     }
 	
-	/// Set the arrows images
-	// Set Left arrow View converting to a image
-	open func setLeftArrowFromView(leftArrow:UIView){
-		leftArrowImage = UIImage.convertViewToImage(view: leftArrow)
-	}
-
-	// Set right arrow View converting to a image
-	open func setRightArrowFromView(rightArrow:UIView){
-		rightArrowImage = UIImage.convertViewToImage(view: rightArrow)
-	}
 
     /// Creates annotation views. All views are created at once, for active annotations. This reduces lag when rotating.
     fileprivate func createAnnotationViews()
@@ -469,15 +496,16 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     {
         //===== Removing views not in viewport, adding those that are. Also removing annotations view vertical level > maxVerticalLevel
         let degreesDelta = Double(degreesPerScreen)
-        
-        for arrowView in self.arrowViews
-        {
-            if(arrowView.superview != nil){
-                arrowView.removeFromSuperview()
-
-            }
-        }
-        
+        leftArrowView?.removeFromSuperview()
+        rigthArrowView?.removeFromSuperview()
+//        for arrowView in self.arrowViews
+//        {
+//            if(arrowView.superview != nil){
+//                arrowView.removeFromSuperview()
+//
+//            }
+//        }
+//        arrowViews.removeAll()
         for annotationView in self.annotationViews
         {
             if annotationView.annotation != nil
@@ -487,8 +515,11 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
                 
                 if fabs(delta) < degreesDelta && annotationView.annotation!.verticalLevel <= self.maxVerticalLevel
                 {
+					// put head annotation on view
                     if annotationView.superview == nil
                     {
+                        
+                        delegate?.findrViewControllerWillShowAnnotationView(findrViewController: self, annotationView: annotationView)
                         self.overlayView.addSubview(annotationView)
                     }
                 }
@@ -499,15 +530,13 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
                         annotationView.removeFromSuperview()
                     }
                     if(self.annotationViews.count == 1 && annotationView.annotation != nil){
-                        let view = UIImageView()
-                        
-                        let x = delta > 0 ? 10 : Double(self.view.frame.maxX) - 70
-                        
-                        view.image  =  delta > 0 ? leftArrowImage : rightArrowImage
-                        view.frame = CGRect(x: x , y: Double(self.view.frame.maxY/2), width: 60, height: 60)
-                        self.view.addSubview(view)
-                        self.arrowViews.append(view)
-                        
+                        if delta > 0 {
+                            delegate?.findrViewControllerUpdateLeftIndicatorView(findrViewController: self, view: leftArrowView)
+                            self.view.addSubview(leftArrowView)
+                        }else{
+                            delegate?.findrViewControllerUpdateRightIndicatorView(findrViewController: self, view: rigthArrowView)
+                            self.view.addSubview(rigthArrowView)
+                        }
                     }
                 }
             }
@@ -547,6 +576,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             let x = self.xPositionForAnnotationView(annotationView, heading: self.trackingManager.heading)
             let y = self.yPositionForAnnotationView(annotationView)
             
+            print("x= \(x), y = \(y)")
             annotationView.frame = CGRect(x: x, y: y, width: annotationView.bounds.size.width, height: annotationView.bounds.size.height)
         }
     }
@@ -554,6 +584,11 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate func xPositionForAnnotationView(_ annotationView: FindrAnnotationView, heading: Double) -> CGFloat
     {
         if annotationView.annotation == nil { return 0 }
+        
+//        if let fixedPosition = delegate?.findrViewControllerFixedPositionForAnnotation(findrViewController: self){
+//            return fixedPosition.x
+//        }
+        
         let annotation = annotationView.annotation!
         
         // Azimuth
@@ -582,11 +617,16 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             }
         }
         
+        
         return xPos
     }
     
     fileprivate func yPositionForAnnotationView(_ annotationView: FindrAnnotationView) -> CGFloat
     {
+        
+//        if let fixedPosition = delegate?.findrViewControllerFixedPositionForAnnotation(findrViewController: self){
+//            return fixedPosition.y
+//        }
         
         var distanceInM = annotationView.annotation?.beaconDistance
         
@@ -755,8 +795,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         // Calculate vertical levels for active annotations
         for annotation in activeAnnotations
         {
-            let verticalLevel = Int(((annotation.distanceFromUser - minDistance) / deltaDistance) * maxLevel)
-            annotation.verticalLevel = 1
+            annotation.verticalLevel = Int(((annotation.distanceFromUser - minDistance) / deltaDistance) * maxLevel)
+             
         }
     }
     
@@ -913,9 +953,10 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         //print(self.currentXVariations.count)
         if(Double(self.currentXVariations.count) > self.MAXIMUM_X_VARIATIONS){
             let sTD = standardDeviation(self.currentXVariations)
-            //print(sTD)
+//            print(sTD)
             if(sTD > self.MAXIMUM_X_STD){
-                self.showLostUserAlert()
+                delegate?.findrViewControllerUserDidGetLost(findrViewController: self)
+//                self.showLostUserAlert()
             }
             self.currentXVariations.removeAll()
         }
@@ -1102,10 +1143,16 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     
     fileprivate func stopCamera()
     {
-        self.cameraSession.stopRunning()
+        self.cameraSession?.stopRunning()
+        self.cameraSession = nil
         self.trackingManager.stopTracking()
         self.displayTimer?.invalidate()
         self.displayTimer = nil
+    }
+    
+    fileprivate func clear(){
+        
+        trackingManager.delegate = nil
     }
     
     //==========================================================================================================================================================
@@ -1131,8 +1178,10 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate func overlayFrame() -> CGRect
     {
         let x: CGFloat = self.view.bounds.size.width / 2 - (CGFloat(currentHeading) * H_PIXELS_PER_DEGREE)
-        let y: CGFloat = (CGFloat(self.trackingManager.pitch) * VERTICAL_SENS) + 60.0
-        
+        var y: CGFloat = (CGFloat(self.trackingManager.pitch) * VERTICAL_SENS) + 60.0
+        if let fixedY = delegate?.findrViewControllerFixedVerticalPositionForAnnotation(findrViewController: self){
+            y = fixedY
+        }
         let newFrame = CGRect(x: x, y: y, width: OVERLAY_VIEW_WIDTH, height: self.view.bounds.size.height)
         return newFrame
     }
@@ -1155,21 +1204,28 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         return UIInterfaceOrientationMask(rawValue: self.interfaceOrientationMask.rawValue)
     }
     
-    open override func willRotate(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval)
-    {
-        super.willRotate(to: toInterfaceOrientation, duration: duration)
-        self.setOrientation(toInterfaceOrientation)
+    open override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator){
+        super.viewWillTransition(to: size, with: coordinator)
+        
+        coordinator.animate(alongsideTransition:
+            {
+                (coordinatorContext) in
+                
+                self.setOrientation(UIApplication.shared.statusBarOrientation)
+            })
+        {
+            [unowned self] (coordinatorContext) in
+            
+            self.layoutAndReloadOnOrientationChange()
+        }
     }
-    
-    open override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval)
+    internal func layoutAndReloadOnOrientationChange()
     {
         CATransaction.begin()
         CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
         self.layoutUi()
         self.reload(calculateDistanceAndAzimuth: false, calculateVerticalLevels: false, createAnnotationViews: false)
         CATransaction.commit()
-        
-        super.willAnimateRotation(to: toInterfaceOrientation, duration: duration)
     }
     
     fileprivate func setOrientation(_ orientation: UIInterfaceOrientation)
@@ -1230,7 +1286,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         }
     }
 }
-
 
 
 
