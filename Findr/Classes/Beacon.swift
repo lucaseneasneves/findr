@@ -9,20 +9,20 @@
 import Foundation
 import CoreLocation
 
-public class Beacon: NSObject {
+open class Beacon: NSObject {
     let identifier: String
-    let uuid: NSUUID
+    let uuid: UUID
     let majorValue: CLBeaconMajorValue
     let minorValue: CLBeaconMinorValue
     
-    public init(identifier: String, uuid: NSUUID, majorValue: CLBeaconMajorValue, minorValue: CLBeaconMinorValue) {
+    public init(identifier: String, uuid: UUID, majorValue: CLBeaconMajorValue, minorValue: CLBeaconMinorValue) {
         self.identifier = identifier
         self.uuid = uuid
         self.majorValue = majorValue
         self.minorValue = minorValue
     }
     
-    public func getRegion() -> CLBeaconRegion {
+    open func getRegion() -> CLBeaconRegion {
         let region =  CLBeaconRegion(proximityUUID: self.uuid, major: self.majorValue, minor: self.minorValue, identifier: self.identifier)
         return region
     }
@@ -40,13 +40,13 @@ public extension CLBeacon
         let proximityText: String
         
         switch proximity {
-        case .Near:
+        case .near:
             proximityText = "Near"
-        case .Immediate:
+        case .immediate:
             proximityText = "Immediate"
-        case .Far:
+        case .far:
             proximityText = "Far"
-        case .Unknown:
+        case .unknown:
             proximityText = "Unknown"
         }
         
