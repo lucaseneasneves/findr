@@ -5,6 +5,7 @@
 [![License](https://img.shields.io/cocoapods/l/Findr.svg?style=flat)](http://cocoapods.org/pods/Findr)
 [![Platform](https://img.shields.io/cocoapods/p/Findr.svg?style=flat)](http://cocoapods.org/pods/Findr)
 
+Findr was developed in a AIS Hackathon
 ## Requirements
 
 ## Installation
@@ -19,6 +20,11 @@ pod "Findr" , :git => 'https://github.com/fatalhck/findr/releases/tag/0.2'
 ## Author
 
 Lucas Neves, Pedro Fabrino, Jonathan Nobre
+
+## Contributors
+
+Victor Cotrim
+Luciano Almeida
 
 ## How to use
 
