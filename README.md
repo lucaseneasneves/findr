@@ -25,7 +25,7 @@ Jonathan Nobre
 
 ## Contributors
 
-Victor Cotrim \n
+Victor Cotrim 
 Luciano Almeida
 
 ## How to use
