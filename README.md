@@ -19,7 +19,9 @@ pod "Findr" , :git => 'https://github.com/fatalhck/findr/releases/tag/0.2'
 
 ## Author
 
-Lucas Neves, Pedro Fabrino, Jonathan Nobre
+Lucas Neves,
+Pedro Fabrino,
+Jonathan Nobre
 
 ## Contributors
 
