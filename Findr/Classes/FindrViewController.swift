@@ -198,14 +198,13 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         
         NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.locationNotification(_:)), name: NSNotification.Name(rawValue: "kNotificationLocationSet"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.appWillEnterForeground(_:)), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
-
+        NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.appWillResignActive(_:)), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
         self.initialize()
     }
     
     /// Intended for use in subclasses, no need to call super
     internal func initialize()
     {
-
     }
     
     deinit
@@ -337,24 +336,30 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         self.degreesPerScreen = (self.view.bounds.size.width / OVERLAY_VIEW_WIDTH) * 360.0
     }
     
+    internal func appWillResignActive(_ notification: Notification){
+//        debugPrint(#function)
+        self.trackingManager.stopTracking()
+
+    }
+
+    
     internal func appWillEnterForeground(_ notification: Notification)
     {
         if(self.view.window != nil)
         {
             // Removing all from screen and restarting location manager.
-            for annotation in self.annotations
-            {
-                annotation.annotationView = nil
-            }
-            
-            for annotationView in self.annotationViews
-            {
-                annotationView.removeFromSuperview()
-            }
-            
-            self.annotationViews = []
-            shouldReloadAnnotations = true;
-            self.trackingManager.stopTracking()
+//            for annotation in self.annotations
+//            {
+//                annotation.annotationView = nil
+//            }
+//            
+//            for annotationView in self.annotationViews
+//            {
+//                annotationView.removeFromSuperview()
+//            }
+//            
+//            self.annotationViews = []
+//            shouldReloadAnnotations = true
             self.trackingManager.startTracking()
         }
     }
@@ -512,7 +517,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             {
                 //minor distance between two angles
                 let delta = deltaAngle(currentHeading, angle2: annotationView.annotation!.azimuth)
-                
+//                debugPrint("delta = \(delta), degreesDelta = \(degreesDelta), currentHeading = \(currentHeading)")
                 if fabs(delta) < degreesDelta && annotationView.annotation!.verticalLevel <= self.maxVerticalLevel
                 {
 					// put head annotation on view
@@ -539,6 +544,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
                         }
                     }
                 }
+                delegate?.findrViewControllerUpdateAngleForAnnotation(findrViewController: self, annotation: annotationView.annotation!, angle: CGFloat(delta) + 180)
+
             }
         }
         
@@ -576,7 +583,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             let x = self.xPositionForAnnotationView(annotationView, heading: self.trackingManager.heading)
             let y = self.yPositionForAnnotationView(annotationView)
             
-            print("x= \(x), y = \(y)")
             annotationView.frame = CGRect(x: x, y: y, width: annotationView.bounds.size.width, height: annotationView.bounds.size.height)
         }
     }
@@ -584,10 +590,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate func xPositionForAnnotationView(_ annotationView: FindrAnnotationView, heading: Double) -> CGFloat
     {
         if annotationView.annotation == nil { return 0 }
-        
-//        if let fixedPosition = delegate?.findrViewControllerFixedPositionForAnnotation(findrViewController: self){
-//            return fixedPosition.x
-//        }
         
         let annotation = annotationView.annotation!
         
@@ -623,10 +625,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     
     fileprivate func yPositionForAnnotationView(_ annotationView: FindrAnnotationView) -> CGFloat
     {
-        
-//        if let fixedPosition = delegate?.findrViewControllerFixedPositionForAnnotation(findrViewController: self){
-//            return fixedPosition.y
-//        }
         
         var distanceInM = annotationView.annotation?.beaconDistance
         
