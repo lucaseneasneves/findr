@@ -9,17 +9,6 @@
 import UIKit
 import AVFoundation
 import CoreLocation
-fileprivate func < <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
-  switch (lhs, rhs) {
-  case let (l?, r?):
-    return l < r
-  case (nil, _?):
-    return true
-  default:
-    return false
-  }
-}
-
 
 /** 
  *      Augmented reality view controller.
@@ -61,6 +50,17 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             }
         }
     }
+    
+    //If annotation moviments in the screen are animated
+    open var isAnnotionsAnimated: Bool = false
+    
+    open var isCloseButtonEnable: Bool = true {
+        didSet{
+            closeButton?.isHidden = !isCloseButtonEnable
+        }
+    }
+    
+    
     /// Total maximum number of visible annotation views. Default value is 100. Max value is 500
     open var maxVisibleAnnotations = 0
     {
@@ -92,7 +92,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         }
     }
     /// Enables map debugging and some other debugging features, set before controller is shown
-    open var debugEnabled = false;
+    open var debugEnabled = false
     /**
      Smoothing factor for heading in range 0-1. It affects horizontal movement of annotaion views. The lower the value the bigger the smoothing.
      Value of 1 means no smoothing, should be greater than 0.
@@ -125,6 +125,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     fileprivate var annotations: [FindrAnnotation] = []
     fileprivate var activeAnnotations: [FindrAnnotation] = []
     fileprivate var closeButton: UIButton?
+    
+    
     fileprivate var currentHeading: Double = 0
     fileprivate var currentXVariations: [Double] = []
     fileprivate var MAXIMUM_X_VARIATIONS: Double = 100
@@ -188,7 +190,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         {
             return
         }
-        self.initialized = true;
+        self.initialized = true
     
         // Default values
         self.trackingManager.delegate = self
@@ -199,6 +201,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.locationNotification(_:)), name: NSNotification.Name(rawValue: "kNotificationLocationSet"), object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.appWillEnterForeground(_:)), name: NSNotification.Name.UIApplicationWillEnterForeground, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.appWillResignActive(_:)), name: NSNotification.Name.UIApplicationWillResignActive, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(FindrViewController.appWillBecameActive(_:)), name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
         self.initialize()
     }
     
@@ -293,11 +296,13 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         
         // Close button - make it customizable
         let closeButton: UIButton = UIButton(type: UIButtonType.custom)
-        closeButton.setImage(closeButtonImage, for: UIControlState());
+        closeButton.setImage(closeButtonImage, for: .normal)
         closeButton.frame = CGRect(x: self.view.bounds.size.width - 45, y: 5,width: 40,height: 40)
         closeButton.addTarget(self, action: #selector(FindrViewController.closeButtonTap), for: UIControlEvents.touchUpInside)
         closeButton.autoresizingMask = [UIViewAutoresizing.flexibleLeftMargin, UIViewAutoresizing.flexibleBottomMargin]
+        closeButton.isHidden = !isCloseButtonEnable
         self.view.addSubview(closeButton)
+        
         self.closeButton = closeButton
         
         initializeArrows()
@@ -333,11 +338,17 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     
     fileprivate func onViewDidLayoutSubviews()
     {
-        self.degreesPerScreen = (self.view.bounds.size.width / OVERLAY_VIEW_WIDTH) * 360.0
+        //44 pixels is the border screen cover
+        self.degreesPerScreen = ((self.view.frame.size.width - 44) / OVERLAY_VIEW_WIDTH) * 360.0
+    }
+    
+    internal func appWillBecameActive(_ notification: Notification){
+        if(self.view.window != nil){
+            self.trackingManager.startTracking()
+        }
     }
     
     internal func appWillResignActive(_ notification: Notification){
-//        debugPrint(#function)
         self.trackingManager.stopTracking()
 
     }
@@ -503,27 +514,17 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         let degreesDelta = Double(degreesPerScreen)
         leftArrowView?.removeFromSuperview()
         rigthArrowView?.removeFromSuperview()
-//        for arrowView in self.arrowViews
-//        {
-//            if(arrowView.superview != nil){
-//                arrowView.removeFromSuperview()
-//
-//            }
-//        }
-//        arrowViews.removeAll()
         for annotationView in self.annotationViews
         {
             if annotationView.annotation != nil
             {
                 //minor distance between two angles
                 let delta = deltaAngle(currentHeading, angle2: annotationView.annotation!.azimuth)
-//                debugPrint("delta = \(delta), degreesDelta = \(degreesDelta), currentHeading = \(currentHeading)")
                 if fabs(delta) < degreesDelta && annotationView.annotation!.verticalLevel <= self.maxVerticalLevel
                 {
 					// put head annotation on view
                     if annotationView.superview == nil
                     {
-                        
                         delegate?.findrViewControllerWillShowAnnotationView(findrViewController: self, annotationView: annotationView)
                         self.overlayView.addSubview(annotationView)
                     }
@@ -582,8 +583,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         {
             let x = self.xPositionForAnnotationView(annotationView, heading: self.trackingManager.heading)
             let y = self.yPositionForAnnotationView(annotationView)
-            
-            annotationView.frame = CGRect(x: x, y: y, width: annotationView.bounds.size.width, height: annotationView.bounds.size.height)
+            annotationView.frame = CGRect(x: x , y: y, width: annotationView.bounds.size.width , height: annotationView.bounds.size.height)
         }
     }
     
@@ -618,8 +618,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
                 xPos = OVERLAY_VIEW_WIDTH + xPos;
             }
         }
-        
-        
         return xPos
     }
     
@@ -631,8 +629,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         let initialScale = 5.0
         let initialMeters = 1.0
         
-        if distanceInM < 1{
-            distanceInM = 1
+        if distanceInM ?? 0.0 < 1.0{
+            distanceInM = 1.0
         }
         
         
@@ -908,7 +906,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     {
         let filterFactor: Double = headingSmoothingFactor
         let newHeading = self.trackingManager.heading
-        
+
         // Picking up the pace if device is being rotated fast or heading of device is at the border(North). It is needed
         // to do this on North border because overlayView changes its position and we don't want it to animate full circle.
         if(self.headingSmoothingFactor == 1 || fabs(currentHeading - self.trackingManager.heading) > 50)
@@ -920,31 +918,22 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             // Smoothing out heading
             currentHeading = (newHeading * filterFactor) + (currentHeading  * (1.0 - filterFactor))
         }
+        if isAnnotionsAnimated {
+            UIView.animate(withDuration: 0.2, animations: { _ in
+                self.overlayView.frame = self.overlayFrame()
+            })
+        }else{
+            self.overlayView.frame = self.overlayFrame()
+        }
         
-        self.overlayView.frame = self.overlayFrame()
         self.updateAnnotationsForCurrentHeading()
         
-//        logText("Heading: \(self.trackingManager.heading)")
+            
+//      logText("Heading: \(self.trackingManager.heading)")
         
         self.currentXVariations.append(self.trackingManager.heading)
         self.checkIfXVariationsExtrapolates()
         
-        let nf = NumberFormatter()
-        nf.maximumFractionDigits = 2
-        nf.minimumIntegerDigits = 1
-        
-//        if let xNumber = self.trackingManager.motionManager.accelerometerData?.acceleration.x{
-//            x = nf.stringFromNumber(xNumber)!
-//           
-//        }
-//        if let yNumber = self.trackingManager.motionManager.accelerometerData?.acceleration.y{
-//            y = nf.stringFromNumber(yNumber)!
-//        }
-//        if let zNumber = self.trackingManager.motionManager.accelerometerData?.acceleration.z{
-//            z = nf.stringFromNumber(zNumber)!
-//        }
-        
-        //logText("Heading: \(self.trackingManager.heading) -- x: \(x) y: \(y) z: \(z)")
     }
     
     internal func checkIfXVariationsExtrapolates(){
@@ -954,7 +943,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
 //            print(sTD)
             if(sTD > self.MAXIMUM_X_STD){
                 delegate?.findrViewControllerUserDidGetLost(findrViewController: self)
-//                self.showLostUserAlert()
             }
             self.currentXVariations.removeAll()
         }
@@ -1010,7 +998,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             
             DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + Double(Int64(1.5 * Double(NSEC_PER_SEC))) / Double(NSEC_PER_SEC))
             {
-                    view.removeFromSuperview()
+                view.removeFromSuperview()
             }
         }
     }
@@ -1161,6 +1149,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     {
         self.overlayView.removeFromSuperview()
         self.overlayView = OverlayView()
+//        self.overlayView.layer.borderWidth = 2.0
+//        self.overlayView.layer.borderColor =  UIColor.black.cgColor
         self.view.addSubview(self.overlayView)
         /*self.overlayView.backgroundColor = UIColor.greenColor().colorWithAlphaComponent(0.1)
         
@@ -1175,7 +1165,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     
     fileprivate func overlayFrame() -> CGRect
     {
-        let x: CGFloat = self.view.bounds.size.width / 2 - (CGFloat(currentHeading) * H_PIXELS_PER_DEGREE)
+        let x: CGFloat = (self.view.bounds.size.width / 2) - (CGFloat(currentHeading) * H_PIXELS_PER_DEGREE) - H_PIXELS_PER_DEGREE
         var y: CGFloat = (CGFloat(self.trackingManager.pitch) * VERTICAL_SENS) + 60.0
         if let fixedY = delegate?.findrViewControllerFixedVerticalPositionForAnnotation(findrViewController: self){
             y = fixedY

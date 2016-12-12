@@ -3,7 +3,7 @@ import UIKit
 
 let LAT_LON_FACTOR: CGFloat = 1.33975031663                      // Used in azimuzh calculation, don't change
 let VERTICAL_SENS: CGFloat = 960
-let H_PIXELS_PER_DEGREE: CGFloat = 14                            // How many pixels per degree
+let H_PIXELS_PER_DEGREE: CGFloat = 15                            // How many pixels per degree
 let OVERLAY_VIEW_WIDTH: CGFloat = 360 * H_PIXELS_PER_DEGREE      // 360 degrees x sensitivity
 
 let MAX_VISIBLE_ANNOTATIONS: Int = 500                           // Do not change, can affect performance
