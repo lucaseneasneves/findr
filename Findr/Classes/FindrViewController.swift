@@ -653,11 +653,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
 //        var yPos: CGFloat = (self.view.bounds.size.height * 0.65) - (annotationViewHeight * CGFloat(annotation.verticalLevel))
 //        yPos -= CGFloat( powf(Float(annotation.verticalLevel), 2) * 4)
 //        
-//        
-        
-        
-        
-        
+//
         return CGFloat(scale)
     }
     
@@ -1062,7 +1058,10 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         }
         else
         {
-            print("HDAugmentedReality: Cannot create capture session, use createCaptureSession method to check if device is capable for augmented reality.")
+            //print("HDAugmentedReality: Cannot create capture session, use createCaptureSession method to check if device is capable for augmented reality.")
+            if let error = captureSessionResult.error {
+                delegate?.findrViewController(findrViewController: self, failToOpenWithError: error)
+            }
         }
     }
     
