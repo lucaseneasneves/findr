@@ -70,7 +70,7 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
 
 //MARK: FindrViewController Delegate
 protocol FindrViewControllerDelegate {
-    
+    func findrViewController(findrViewController: FindrViewController, failToOpenWithError error: Error)
     func findrViewControllerUpdateAngleForAnnotation(findrViewController: FindrViewController,annotation: FindrAnnotation , angle: CGFloat)
     func findrViewControllerFixedVerticalPositionForAnnotation(findrViewController: FindrViewController)-> CGFloat?
     func findrViewControllerWillShowAnnotationView(findrViewController: FindrViewController, annotationView: FindrAnnotationView)
