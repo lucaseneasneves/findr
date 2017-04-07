@@ -1,5 +1,4 @@
 import CoreLocation
-import UIKit
 
 let LAT_LON_FACTOR: CGFloat = 1.33975031663                      // Used in azimuzh calculation, don't change
 let VERTICAL_SENS: CGFloat = 960
@@ -11,12 +10,12 @@ let MAX_VERTICAL_LEVELS: Int = 5                               // Do not change,
 
 internal func radiansToDegrees(_ radians: Double) -> Double
 {
-    return (radians) * (180.0 / M_PI)
+    return (radians) * (180.0 / .pi)
 }
 
 internal func degreesToRadians(_ degrees: Double) -> Double
 {
-    return (degrees) * (M_PI / 180.0)
+    return (degrees) * (.pi / 180.0)
 }
 
 /// Normalizes degree to 360

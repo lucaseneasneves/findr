@@ -180,7 +180,6 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
             view.image  =  UIImage(named:"right_arrow")
             view.frame = CGRect(x: Double(self.view.frame.maxX) - 70 , y: Double(self.view.frame.maxY/2), width: 60, height: 60)
             rigthArrowView = view
-            //                            self.arrowViews.append(view)
         }
     }
     
@@ -408,7 +407,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         if self.trackingManager.userLocation != nil && self.isViewLoaded
         {
             self.shouldReloadAnnotations = false
-            self.reload(calculateDistanceAndAzimuth: true, calculateVerticalLevels: true, createAnnotationViews: true)
+            self.reload(calculateDistanceAndAzimuth: true,
+                        calculateVerticalLevels: true, createAnnotationViews: true)
             self.delegate?.findrViewControllerWillReloadAnnotations(findrViewController: self, annotations: getAnnotations())
         }
         else
@@ -419,8 +419,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
 	
 
     /// Creates annotation views. All views are created at once, for active annotations. This reduces lag when rotating.
-    fileprivate func createAnnotationViews()
-    {
+    fileprivate func createAnnotationViews() {
         var annotationViews: [FindrAnnotationView] = []
         let activeAnnotations = self.activeAnnotations  // Which annotations are active is determined by number of properties - distance, vertical level etc.
         
@@ -470,8 +469,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     }
     
     
-    fileprivate func calculateDistanceAndAzimuthForAnnotations(sort: Bool, onlyForActiveAnnotations: Bool)
-    {
+    fileprivate func calculateDistanceAndAzimuthForAnnotations(sort: Bool, onlyForActiveAnnotations: Bool) {
         if self.trackingManager.userLocation == nil
         {
             return
@@ -508,8 +506,7 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         }
     }
     
-    fileprivate func updateAnnotationsForCurrentHeading()
-    {
+    fileprivate func updateAnnotationsForCurrentHeading() {
         //===== Removing views not in viewport, adding those that are. Also removing annotations view vertical level > maxVerticalLevel
         let degreesDelta = Double(degreesPerScreen)
         leftArrowView?.removeFromSuperview()
@@ -1074,17 +1071,14 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
         let videoDevices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo)
         
         // Get back video device
-        for captureDevice in videoDevices!
-        {
-            if (captureDevice as AnyObject).position == AVCaptureDevicePosition.back
-            {
+        for captureDevice in videoDevices! {
+            if (captureDevice as AnyObject).position == AVCaptureDevicePosition.back {
                 backVideoDevice = captureDevice as? AVCaptureDevice
                 break
             }
         }
         
-        if backVideoDevice != nil
-        {
+        if backVideoDevice != nil {
             var videoInput: AVCaptureDeviceInput!
             do {
                 videoInput = try AVCaptureDeviceInput(device: backVideoDevice)
@@ -1092,21 +1086,15 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
                 error = error1
                 videoInput = nil
             }
-            if error == nil
-            {
+            if error == nil {
                 captureSession = AVCaptureSession()
                 
-                if captureSession!.canAddInput(videoInput)
-                {
+                if captureSession!.canAddInput(videoInput) {
                     captureSession!.addInput(videoInput)
-                }
-                else
-                {
+                } else{
                     error = NSError(domain: "HDAugmentedReality", code: 10002, userInfo: ["description": "Error adding video input."])
                 }
-            }
-            else
-            {
+            }else {
                 error = NSError(domain: "HDAugmentedReality", code: 10001, userInfo: ["description": "Error creating capture device input."])
             }
         }
@@ -1235,10 +1223,8 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     //MARK:                                                        Debug
     //==========================================================================================================================================================
     /// Called from DebugMapViewController when user fakes location.
-    internal func locationNotification(_ sender: Notification)
-    {
-        if let location = (sender as NSNotification).userInfo?["location"] as? CLLocation
-        {
+    internal func locationNotification(_ sender: Notification) {
+        if let location = (sender as NSNotification).userInfo?["location"] as? CLLocation {
             self.trackingManager.startDebugMode(location)
             self.reloadAnnotations()
             self.dismiss(animated: true, completion: nil)
@@ -1246,25 +1232,19 @@ open class FindrViewController: UIViewController, FindrTrackingManagerDelegate
     }
     
     /// Opening DebugMapViewController
-    internal func debugButtonTap()
-    {
-        if let action = debugAction{
+    internal func debugButtonTap() {
+        if let action = debugAction {
             action()
         }
     }
     
     /// Normal UIView that registers taps on subviews out of its bounds.
-    fileprivate class OverlayView: UIView
-    {
-        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView?
-        {
-            if(!self.clipsToBounds && !self.isHidden)
-            {
-                for subview in self.subviews.reversed()
-                {
+    fileprivate class OverlayView: UIView {
+        override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+            if !self.clipsToBounds && !self.isHidden {
+                for subview in self.subviews.reversed() {
                     let subPoint = subview.convert(point, from: self)
-                    if let result:UIView = subview.hitTest(subPoint, with:event)
-                    {
+                    if let result:UIView = subview.hitTest(subPoint, with:event) {
                         return result;
                     }
                 }
