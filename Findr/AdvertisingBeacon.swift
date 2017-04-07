@@ -55,7 +55,7 @@ open class AdvertisingBeacon: NSObject, CBPeripheralManagerDelegate {
     
     open func peripheralManagerDidStartAdvertising(_ peripheral: CBPeripheralManager, error: Error?) {
         if error != nil {
-            print("Couldn't turn on advertising: \(error)")
+            print("Couldn't turn on advertising: \(String(describing: error))")
             delegate?.advertisingOperationDidFailToStart()
         }
         

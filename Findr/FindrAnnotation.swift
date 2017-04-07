@@ -32,7 +32,7 @@ open class FindrAnnotation: NSObject
     
     open override var description: String{
         get{
-            return "\(title) - \(location) - DFU: \(distanceFromUser) - VL: \(verticalLevel)"
+            return "\(String(describing: title)) - \(String(describing: location)) - DFU: \(distanceFromUser) - VL: \(verticalLevel)"
         }
     }
 

@@ -51,8 +51,13 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         }
     }
     
+    /**
+     *      Specifies in metters the accuracy limit acceptable for a user location.
+     */
+    open var maximumAcuracyAllowed: CLLocationAccuracy = 400
     
     open var motionManager: CMMotionManager = CMMotionManager()
+
     
     //===== Internal variables
     fileprivate(set) internal var locationManager: CLLocationManager = CLLocationManager()
@@ -171,15 +176,16 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
             let location = locations[0]
 
             // Disregarding old and low quality location detections
-            let age = location.timestamp.timeIntervalSinceNow;
-            if age < -30 || location.horizontalAccuracy > 500 || location.horizontalAccuracy < 0
+            let age = location.timestamp.timeIntervalSinceNow
+            if age < -30 || location.horizontalAccuracy > maximumAcuracyAllowed || location.horizontalAccuracy < 0
             {
                 print("Disregarding location: age: \(age), ha: \(location.horizontalAccuracy)")
                 return
             }
             
-            //println("== \(location!.horizontalAccuracy), \(age) \(location!.coordinate.latitude), \(location!.coordinate.longitude)" )
             self.userLocation = location
+
+            //println("== \(location!.horizontalAccuracy), \(age) \(location!.coordinate.latitude), \(location!.coordinate.longitude)" )
             
             // Setting altitude to 0 if altitudeSensitive == false
             if self.userLocation != nil && !self.altitudeSensitive
@@ -270,8 +276,7 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         {
             angle = atan2(-self.lastAcceleration.x, self.lastAcceleration.z)
         }
-        
-        angle += M_PI_2
+        angle += .pi / 2
         angle = (self.pitchPrevious + angle) / 2.0
         self.pitchPrevious = angle
         return angle
@@ -295,16 +300,15 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         // Simplified azimuth calculation
         azimuth = radiansToDegrees(atan2(longitudeDistance, (latitudeDistance * Double(LAT_LON_FACTOR))))
         
-//        TODO: Não TIREI 40
         azimuth += 180.0
-        
+
         return azimuth;
     }
     
     internal func startDebugMode(_ location: CLLocation)
     {
         self.debugLocation = location
-        self.userLocation = location;
+        self.userLocation = location
     }
     internal func stopDebugMode(_ location: CLLocation)
     {
