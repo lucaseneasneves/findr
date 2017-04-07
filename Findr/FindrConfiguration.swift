@@ -34,12 +34,9 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
 {
     var deltaAngle = angle1 - angle2
     
-    if deltaAngle > 180
-    {
+    if deltaAngle > 180 {
         deltaAngle -= 360
-    }
-    else if deltaAngle < -180
-    {
+    } else if deltaAngle < -180 {
         deltaAngle += 360
     }
     return deltaAngle
@@ -70,15 +67,25 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
 //MARK: FindrViewController Delegate
 protocol FindrViewControllerDelegate {
     func findrViewController(findrViewController: FindrViewController, failToOpenWithError error: Error)
+    
     func findrViewControllerUpdateAngleForAnnotation(findrViewController: FindrViewController,annotation: FindrAnnotation , angle: CGFloat)
+    
     func findrViewControllerFixedVerticalPositionForAnnotation(findrViewController: FindrViewController)-> CGFloat?
+    
     func findrViewControllerWillShowAnnotationView(findrViewController: FindrViewController, annotationView: FindrAnnotationView)
+    
     func findrViewControllerWillReloadAnnotations(findrViewController: FindrViewController, annotations: [FindrAnnotation])
+    
     func findrViewControllerUserDidGetLost(findrViewController: FindrViewController) -> Void
+    
     func findrViewControllerViewForLeftIndicator(findrViewController: FindrViewController)-> UIView
+    
     func findrViewControllerViewForRightIndicator(findrViewController: FindrViewController) -> UIView
+    
     func findrViewControllerFrameForRightIndicator(findrViewController: FindrViewController) -> CGRect
+    
     func findrViewControllerFrameForLeftIndicator(findrViewController: FindrViewController) -> CGRect
+    
     func findrViewControllerUpdateLeftIndicatorView(findrViewController: FindrViewController, view: UIView)
     func findrViewControllerUpdateRightIndicatorView(findrViewController: FindrViewController, view: UIView)
 }

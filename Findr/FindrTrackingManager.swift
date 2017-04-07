@@ -308,7 +308,7 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     internal func startDebugMode(_ location: CLLocation)
     {
         self.debugLocation = location
-        self.userLocation = location;
+        self.userLocation = location
     }
     internal func stopDebugMode(_ location: CLLocation)
     {
