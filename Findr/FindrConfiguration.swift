@@ -1,5 +1,4 @@
 import CoreLocation
-import UIKit
 
 let LAT_LON_FACTOR: CGFloat = 1.33975031663                      // Used in azimuzh calculation, don't change
 let VERTICAL_SENS: CGFloat = 960
@@ -11,12 +10,12 @@ let MAX_VERTICAL_LEVELS: Int = 5                               // Do not change,
 
 internal func radiansToDegrees(_ radians: Double) -> Double
 {
-    return (radians) * (180.0 / M_PI)
+    return (radians) * (180.0 / .pi)
 }
 
 internal func degreesToRadians(_ degrees: Double) -> Double
 {
-    return (degrees) * (M_PI / 180.0)
+    return (degrees) * (.pi / 180.0)
 }
 
 /// Normalizes degree to 360
@@ -35,12 +34,9 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
 {
     var deltaAngle = angle1 - angle2
     
-    if deltaAngle > 180
-    {
+    if deltaAngle > 180 {
         deltaAngle -= 360
-    }
-    else if deltaAngle < -180
-    {
+    } else if deltaAngle < -180 {
         deltaAngle += 360
     }
     return deltaAngle
@@ -71,15 +67,25 @@ internal func deltaAngle(_ angle1: Double, angle2: Double) -> Double
 //MARK: FindrViewController Delegate
 protocol FindrViewControllerDelegate {
     func findrViewController(findrViewController: FindrViewController, failToOpenWithError error: Error)
+    
     func findrViewControllerUpdateAngleForAnnotation(findrViewController: FindrViewController,annotation: FindrAnnotation , angle: CGFloat)
+    
     func findrViewControllerFixedVerticalPositionForAnnotation(findrViewController: FindrViewController)-> CGFloat?
+    
     func findrViewControllerWillShowAnnotationView(findrViewController: FindrViewController, annotationView: FindrAnnotationView)
+    
     func findrViewControllerWillReloadAnnotations(findrViewController: FindrViewController, annotations: [FindrAnnotation])
+    
     func findrViewControllerUserDidGetLost(findrViewController: FindrViewController) -> Void
+    
     func findrViewControllerViewForLeftIndicator(findrViewController: FindrViewController)-> UIView
+    
     func findrViewControllerViewForRightIndicator(findrViewController: FindrViewController) -> UIView
+    
     func findrViewControllerFrameForRightIndicator(findrViewController: FindrViewController) -> CGRect
+    
     func findrViewControllerFrameForLeftIndicator(findrViewController: FindrViewController) -> CGRect
+    
     func findrViewControllerUpdateLeftIndicatorView(findrViewController: FindrViewController, view: UIView)
     func findrViewControllerUpdateRightIndicatorView(findrViewController: FindrViewController, view: UIView)
 }

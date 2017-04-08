@@ -276,7 +276,7 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
         {
             angle = atan2(-self.lastAcceleration.x, self.lastAcceleration.z)
         }
-        angle += M_PI_2
+        angle += .pi / 2
         angle = (self.pitchPrevious + angle) / 2.0
         self.pitchPrevious = angle
         return angle
@@ -308,7 +308,7 @@ open class FindrTrackingManager: NSObject, CLLocationManagerDelegate
     internal func startDebugMode(_ location: CLLocation)
     {
         self.debugLocation = location
-        self.userLocation = location;
+        self.userLocation = location
     }
     internal func stopDebugMode(_ location: CLLocation)
     {
